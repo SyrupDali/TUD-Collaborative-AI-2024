@@ -301,6 +301,7 @@ class BaselineAgent(ArtificialBrain):
                     # If there are no target victims found, visit an unsearched area to search for victims
                     if vic not in self._found_victims or vic in self._found_victims and vic in self._todo and len(
                             self._searched_rooms) > 0:
+                        print("Walking Away!!!")
                         self._phase = Phase.PICK_UNSEARCHED_ROOM
 
 
@@ -871,6 +872,7 @@ class BaselineAgent(ArtificialBrain):
                     
                     self._answered = True
                     self._waiting = False
+                    print("Added to todo 1")
                     self._todo.append(self._recent_vic)
                     self._recent_vic = None
                     self._phase = Phase.FIND_NEXT_GOAL
@@ -1103,6 +1105,7 @@ class BaselineAgent(ArtificialBrain):
                     # Add the found victim to the to do list when the human's condition is not 'weak'
                     if 'mild' in foundVic and condition != 'weak':
                         self._todo.append(foundVic)
+                        print("Added to todo 2")
                     
                     
                 # If a received message involves team members rescuing victims, add these victims and their locations to memory
@@ -1175,6 +1178,7 @@ class BaselineAgent(ArtificialBrain):
                         self._remove = True
                         if self._waiting and self._recent_vic:
                             self._todo.append(self._recent_vic)
+                            print("Added to todo 3")
                         self._waiting = False
                         # Let the human know that the agent is coming over to help
                         self._send_message(

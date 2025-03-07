@@ -58,7 +58,6 @@ class HelpRemoveObstacleSession(PromptSession):
             self.bot._phase = Phase.PLAN_PATH_TO_ROOM
         # Come over to help after dropping a victim that is currently being carried by the agent
         else:
-            area = 'area ' + msg.split()[-1]
             self.bot._send_message('Will come to ' + area + ' after dropping ' + self.bot._goal_vic + '.',
                                 'RescueBot')
 
@@ -107,5 +106,5 @@ class HelpRemoveObstacleSession(PromptSession):
         """
         if Z == 14:
             return 0
-        percentage = X / (14 - Z)
+        percentage = X / Z
         return (percentage - 0.6) * X / 2

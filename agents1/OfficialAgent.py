@@ -14,7 +14,7 @@ from matrx.actions.move_actions import MoveNorth
 from matrx.messages.message import Message
 from matrx.messages.message_manager import MessageManager
 from actions1.CustomActions import RemoveObjectTogether, CarryObjectTogether, DropObjectTogether, CarryObject, Drop
-
+from agents1.sessions.HelpRemoveObstacle import HelpRemoveObstacleSession
 from agents1.sessions.stoneObstacle import StoneObstacleSession
 from agents1.sessions.yellowVictim import YellowVictimSession
 from agents1.sessions.treeObstacle import TreeObstacleSession
@@ -66,6 +66,7 @@ class BaselineAgent(ArtificialBrain):
         self._searched_rooms = [] # Contains the searched rooms by the agent and human(based on the beliefs lvl)
         self._searched_rooms_by_agent = [] # Contains the searched rooms by the agent, so 100% sure
         self._searched_rooms_claimed_by_human = [] # record the rooms claimed searched by the human
+        self._help_remove_rooms_current_round = [] # Contains the rooms where the agent found obstacles
         self._found_victims = []
         self._collected_victims = []
         self._found_victim_logs = {}
@@ -98,7 +99,8 @@ class BaselineAgent(ArtificialBrain):
         self._all_room_tiles = None
         self._search_willingness_start_value = None
         self._search_competence_start_value = None
-
+        self._help_remove_willingness_start_value = None
+        
         # Used for managing prompts
         self._current_prompt = None
         
@@ -118,6 +120,10 @@ class BaselineAgent(ArtificialBrain):
         self._red_victim_session = None
         self._number_of_red_victims_saved = 0
 
+        # Used when Removing Obstacles
+        self._number_of_actions_help_remove = 0
+        self._help_remove_obstacle_session = HelpRemoveObstacleSession(self, None, 100)
+        
         # Keep track of obstacles we've decided to skip
         self._skipped_obstacles = []
 
@@ -128,7 +134,7 @@ class BaselineAgent(ArtificialBrain):
                                     algorithm=Navigator.A_STAR_ALGORITHM)
         # Initialization of the tasks the agent can perform
         self._tasks = ['search', 'rescue_yellow', 'rescue_red', 
-                       'remove_rock', 'remove_stone', 'remove_tree']
+                       'remove_rock', 'remove_stone', 'remove_tree', 'help_remove']
         
     def filter_observations(self, state):
         # Filtering of the world state before deciding on an action 
@@ -173,7 +179,8 @@ class BaselineAgent(ArtificialBrain):
             self._trustBeliefs = self._loadBelief(self._team_members, self._folder)
             self._search_willingness_start_value = self._trustBeliefs[self._human_name]['search']['willingness']
             self._search_competence_start_value = self._trustBeliefs[self._human_name]['search']['competence'] # We will use this value to compute the probability of adding searched rooms
-
+            self._help_remove_willingness_start_value = self._trustBeliefs[self._human_name]['help_remove']['willingness']
+            
         # Initialize random values for each task if the random baseline is used
         if PromptSession.scenario_used == Scenario.RANDOM_TRUST:
             for task in self._tasks:
@@ -383,6 +390,7 @@ class BaselineAgent(ArtificialBrain):
                     self._searched_rooms = list(self._searched_rooms_by_agent) # Reset the searched rooms(only includes the ones searched by the agent)
                     self._searched_rooms_claimed_by_human = [] # Reset the searched rooms claimed by the human
                     self._searched_rooms_by_agent = [] # Reset the searched rooms by the agent, only store the new ones in the next searching round
+                    self._help_remove_rooms_current_round = [] # Reset the rooms where the agent found obstacles
                     self._send_messages = []
                     self.received_messages = []
                     self.received_messages_content = []
@@ -391,6 +399,7 @@ class BaselineAgent(ArtificialBrain):
                     self._not_penalizable = list(self._searched_rooms) # Reset to agent searched rooms
                     self._search_willingness_start_value = self._trustBeliefs[self._human_name]['search']['willingness'] # Reset the start value for next search round
                     self._search_competence_start_value = self._trustBeliefs[self._human_name]['search']['competence']
+                    self._help_remove_willingness_start_value = self._trustBeliefs[self._human_name]['help_remove']['willingness']
                     self._send_message('Going to re-search all areas.', 'RescueBot')
                     self._phase = Phase.FIND_NEXT_GOAL
                 # If there are still areas to search, define which one to search next
@@ -535,7 +544,9 @@ class BaselineAgent(ArtificialBrain):
                         # Competence Update: Decrease trust in human if bot found obstacles at the entrance of the claimed searched area
                         if (self._re_searching or self._door['room_name'] in self._searched_rooms_claimed_by_human) and self._door['room_name'] not in self._not_penalizable:
                             penalize_search_competence_for_claimed_searched_room_with_obstacle(self, 'rock', use_confidence=True)
-
+                        # verify if the room is blocked by an obstacle
+                        if self._remove and not self._waiting:
+                            self._help_remove_obstacle_session.verify_human_request(self._door['room_name'], True, use_confidence=True)
                         # Communicate which obstacle is blocking the entrance
                         if self._answered == False and not self._remove and not self._waiting:
                             self._send_message('Found rock blocking ' + str(self._door['room_name']) + '. Please decide whether to "Remove" or "Continue" searching. \n \n \
@@ -556,6 +567,7 @@ class BaselineAgent(ArtificialBrain):
                         # Wait for the human to help removing the obstacle and remove the obstacle together
                         if self.received_messages_content and self.received_messages_content[
                             -1] == 'Remove' or self._remove:
+                            self._help_remove_obstacle_session.verify_human_request(self._door['room_name'], True, use_confidence=True)
                             if not self._remove:
                                 self._answered = True
                             # Tell the human to come over and be idle untill human arrives
@@ -584,6 +596,9 @@ class BaselineAgent(ArtificialBrain):
                         if (self._re_searching or self._door['room_name'] in self._searched_rooms_claimed_by_human) and self._door['room_name'] not in self._not_penalizable:
                             penalize_search_competence_for_claimed_searched_room_with_obstacle(self, 'tree', use_confidence=True)
 
+                        # verify if the room is blocked by an obstacle
+                        if self._remove and not self._waiting:
+                            self._help_remove_obstacle_session.verify_human_request(self._door['room_name'], True, use_confidence=True)
                         # Communicate which obstacle is blocking the entrance
                         if self._answered == False and not self._remove and not self._waiting:
                             print("reached tree if statement")
@@ -640,7 +655,9 @@ class BaselineAgent(ArtificialBrain):
                         # Competence Update: Decrease trust in human if bot found obstacles at the entrance of the claimed searched area
                         if (self._re_searching or self._door['room_name'] in self._searched_rooms_claimed_by_human) and self._door['room_name'] not in self._not_penalizable:
                             penalize_search_competence_for_claimed_searched_room_with_obstacle(self, 'stone', use_confidence=True)
-
+                        # verify if the room is blocked by an obstacle
+                        if self._remove and not self._waiting:
+                            self._help_remove_obstacle_session.verify_human_request(self._door['room_name'], True, use_confidence=True)
                         # Communicate which obstacle is blocking the entrance
                         if self._answered == False and not self._remove and not self._waiting:
 
@@ -649,7 +666,6 @@ class BaselineAgent(ArtificialBrain):
                             # If decision is None, we trust the human and generate the prompt
                             if decision is not None:
                                 return decision
-
                             self._send_message('Found stones blocking  ' + str(self._door['room_name']) + '. Please decide whether to "Remove together", "Remove alone", or "Continue" searching. \n \n \
                                 Important features to consider are: \n safe - victims (claimed to be) rescued: ' + str(
                                 set(self._collected_victims) | set(self._claimed_collected_victims)) + ' \n explore - areas searched: area ' + str(
@@ -689,6 +705,7 @@ class BaselineAgent(ArtificialBrain):
                         # Remove the obstacle together if the human decides so
                         if self.received_messages_content and self.received_messages_content[
                             -1] == 'Remove together' or self._remove:
+                            self._help_remove_obstacle_session.verify_human_request(self._door['room_name'], True, use_confidence=True)
                             if not self._remove:
                                 self._answered = True
                             # Tell the human to come over and be idle until human arrives
@@ -718,7 +735,9 @@ class BaselineAgent(ArtificialBrain):
                             continue
 
                         objects.append(info)
-                        
+                        # verify if the room is blocked by an obstacle
+                        if self._remove and not self._waiting:
+                            self._help_remove_obstacle_session.verify_human_request(self._door['room_name'], True, use_confidence=True)
                         # If we haven't asked about it yet (and not currently removing or waiting), prompt the human
                         if self._answered is False and not self._remove and not self._waiting:
                             self._send_message(
@@ -747,6 +766,7 @@ class BaselineAgent(ArtificialBrain):
                         # If the user says "Remove together", or we forcibly remove
                         if (self.received_messages_content
                             and self.received_messages_content[-1] == 'Remove together') or self._remove:
+                            self._help_remove_obstacle_session.verify_human_request(self._door['room_name'], True, use_confidence=True)
                             if not self._remove:
                                 self._answered = True
 
@@ -797,6 +817,7 @@ class BaselineAgent(ArtificialBrain):
                                     return result
                             return None, {}
                 
+                
                 # If no obstacles are blocking the entrance, enter the area
                 if len(objects) == 0:
                     if isinstance(self._current_prompt, StoneObstacleSession):
@@ -805,10 +826,14 @@ class BaselineAgent(ArtificialBrain):
                     elif isinstance(self._current_prompt, RockObstacleSession) and self._current_prompt.currPhase == RockObstacleSession.RockObstaclePhase.WAITING_HUMAN:
                         # If the current prompt is a rock obstacle session in WAITING_HUMAN phase, complete the removal
                         self._current_prompt.complete_remove_rock()
+                    elif not isinstance(self._current_prompt, TreeObstacleSession):
+                        if self._remove and not self._waiting:
+                            self._help_remove_obstacle_session.verify_human_request(self._door['room_name'], False, use_confidence=True) # No obstacle found
                     self._answered = False
                     self._remove = False
                     self._waiting = False
                     self._phase = Phase.ENTER_ROOM
+                    
 
 
 
@@ -1448,37 +1473,24 @@ class BaselineAgent(ArtificialBrain):
                 
                 
                 # If a received message involves team members asking for help with removing obstacles, add their location to memory and come over
-                if msg.startswith('Remove:'):
-                    # Come over immediately when the agent is not carrying a victim
-                    if not self._carrying:
-                        # Identify at which location the human needs help
-                        area = 'area ' + msg.split()[-1]
-                        self._door = state.get_room_doors(area)[0]
-                        self._doormat = state.get_room(area)[-1]['doormat']
-                        if area in self._searched_rooms:
-                            # indicate that the human lied about searching the area
-                            # or that the human is not competent enough to find the obstacle?(tricking the bot)
-                            self._searched_rooms.remove(area)
-                            #TODO: try to run this code and see if it penalizes the search competence
-                        # Clear received messages (bug fix)
-                        self.received_messages = []
-                        self.received_messages_content = []
-                        self._moving = True
-                        self._remove = True
-                        if self._waiting and self._recent_vic:
-                            self._todo.append(self._recent_vic)
-                        self._waiting = False
-                        # Let the human know that the agent is coming over to help
-                        self._send_message(
-                            'Moving to ' + str(self._door['room_name']) + ' to help you remove an obstacle.',
-                            'RescueBot')
-                        # Plan the path to the relevant area
-                        self._phase = Phase.PLAN_PATH_TO_ROOM
-                    # Come over to help after dropping a victim that is currently being carried by the agent
+                if msg.startswith('Remove:') and msg not in self._consumed_messages:
+                    area = 'area ' + msg.split()[-1]
+                    if area in self._searched_rooms_by_agent:
+                        self._help_remove_obstacle_session.penalize_help_remove_willingness_already_searched(area, use_confidence=True)
+                        
                     else:
-                        area = 'area ' + msg.split()[-1]
-                        self._send_message('Will come to ' + area + ' after dropping ' + self._goal_vic + '.',
-                                          'RescueBot')
+                        if area not in self._help_remove_rooms_current_round:
+                            self._help_remove_rooms_current_round.append(area)
+                            self._help_remove_obstacle_session.update_help_remove_willingness(use_confidence=True)
+                        self._number_of_actions_help_remove += 1
+                        trust_value = self._help_remove_obstacle_session.decision_making(area)
+                        # Come over immediately when the agent is not carrying a victim
+                        if trust_value == HelpRemoveObstacleSession.TrustDecision.HIGH_COMPETENCE:
+                            self._send_message('I am coming over to help remove the obstacle.', 'RescueBot')
+                            self._help_remove_obstacle_session.decision_to_help(state, area)
+                        else:
+                            self._send_message('I am not coming over to help remove the obstacle.', 'RescueBot')
+                    self._consumed_messages.add(msg)
             # Store the current location of the human in memory
             if mssgs and mssgs[-1].split()[-1] in ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13',
                                                    '14']:

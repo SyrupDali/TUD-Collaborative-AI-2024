@@ -1053,14 +1053,14 @@ class BaselineAgent(ArtificialBrain):
 
                     # If the human isn't currently visible, remind them to come closer
                     if not state[{'is_human_agent': True}]:
-                        self._red_victim_session.robot_rescue_together()
+                        self._red_victim_session.robot_rescue_together(use_confidence=True)
 
                         self._send_message(
                             f"Please come to {self._door['room_name']} to carry {self._recent_vic} together.",
                             "RescueBot"
                         )
                     if state[{'is_human_agent': True}]:
-                        self._red_victim_session.robot_rescue_together()
+                        self._red_victim_session.robot_rescue_together(use_confidence=True)
                         self._send_message(
                             f"Lets carry {self._recent_vic} together! Please wait until I'm on top of {self._recent_vic}.",
                             "RescueBot"
@@ -1081,14 +1081,14 @@ class BaselineAgent(ArtificialBrain):
 
                     # Tell the human to come over and help carry the mildly injured victim
                     if not state[{'is_human_agent': True}]:
-                        self._yellow_victim_session.robot_rescue_together(True)
+                        self._yellow_victim_session.robot_rescue_together(use_confidence=True)
 
                         self._send_message('Please come to ' + str(self._door['room_name']) + ' to carry ' + str(
                             self._recent_vic) + ' together.', 'RescueBot')
 
                     # Tell the human to carry the mildly injured victim together (this code gets reached when the human is visible to the robot)
                     if state[{'is_human_agent': True}]:
-                        self._yellow_victim_session.robot_rescue_together(True)
+                        self._yellow_victim_session.robot_rescue_together(use_confidence=True)
 
                         self._send_message('Lets carry ' + str(
                             self._recent_vic) + ' together! Please wait until I moved on top of ' + str(
@@ -1122,10 +1122,10 @@ class BaselineAgent(ArtificialBrain):
 
                     # Check if the recent victim is a yellow or red victim
                     if isinstance(self._yellow_victim_session, YellowVictimSession):
-                        self._yellow_victim_session.robot_continue_rescue(True)
+                        self._yellow_victim_session.robot_continue_rescue(use_confidence=True)
 
                     elif isinstance(self._red_victim_session, RedVictimSession):
-                        self._red_victim_session.robot_continue_rescue()
+                        self._red_victim_session.robot_continue_rescue(use_confidence=True)
                     
                     self._answered = True
                     self._waiting = False
@@ -1138,9 +1138,9 @@ class BaselineAgent(ArtificialBrain):
                 if self.received_messages_content and self._waiting and self.received_messages_content[
                     -1] != 'Rescue' and self.received_messages_content[-1] != 'Continue':
                     if isinstance(self._yellow_victim_session, PromptSession):
-                        self._yellow_victim_session.wait(True)
+                        self._yellow_victim_session.wait(use_confidence=True)
                     if isinstance(self._red_victim_session, PromptSession):
-                        self._red_victim_session.wait()
+                        self._red_victim_session.wait(use_confidence=True)
                     return None, {}
 
 
@@ -1206,14 +1206,14 @@ class BaselineAgent(ArtificialBrain):
 
                         if 'mild' in info['obj_id']:
                             if isinstance(self._yellow_victim_session, PromptSession):
-                                timeout_encountered = self._yellow_victim_session.wait(True)
+                                timeout_encountered = self._yellow_victim_session.wait(use_confidence=True)
                                 if timeout_encountered == 1:
                                     return None, {}
 
 
                         if 'critical' in info['obj_id']:
                             if isinstance(self._red_victim_session, PromptSession):
-                                timeout_encountered = self._red_victim_session.wait()
+                                timeout_encountered = self._red_victim_session.wait(use_confidence=True)
                                 if timeout_encountered == 1:
                                     return None, {}
                 
@@ -1284,7 +1284,7 @@ class BaselineAgent(ArtificialBrain):
                 if 'critical' in self._goal_vic:
                     if isinstance(self._red_victim_session, RedVictimSession):
                         # This finalizes the rescue, includes time-based trust update
-                        self._red_victim_session.complete_rescue_together()
+                        self._red_victim_session.complete_rescue_together(use_confidence=True)
                         self._red_victim_session.delete_red_victim_session()
                     self._send_message(f"Delivered {self._goal_vic} (critical) at the drop zone.", "RescueBot")
                 

@@ -141,7 +141,6 @@ class StoneObstacleSession(PromptSession):
             print("How did you even get here?!")
             pass
 
-#TODO: Implement Confidence Level
     def increment_values(self, task, willingness, competence, bot):
         StoneObstacleSession.count += 1
         print("Confidence:", self.get_confidence())

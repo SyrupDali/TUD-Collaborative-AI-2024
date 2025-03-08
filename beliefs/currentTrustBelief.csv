@@ -1,1 +1,7 @@
-name;task;competence;willingness
+name;task;competence;willingness
+rgergreg;search;0.0;0.0
+rgergreg;rescue_yellow;0.5;0.5996
+rgergreg;rescue_red;0.5;0.5
+rgergreg;remove_rock;0.5;0.5
+rgergreg;remove_stone;0.5;0.5
+rgergreg;remove_tree;0.425;0.425

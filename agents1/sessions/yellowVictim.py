@@ -3,6 +3,8 @@ from agents1.eventUtils import PromptSession
 
 
 class YellowVictimSession(PromptSession):
+    number_of_actions = 0
+    
     class YellowVictimPhase(enum.Enum):
         WAITING_RESPONSE = 0
         WAITING_HUMAN = 1
@@ -14,7 +16,10 @@ class YellowVictimSession(PromptSession):
     
     # Trust Belief Thresholds
     WILLINGNESS_THRESHOLD = 0.7
+    VERY_LOW_WILLINGNESS_THRESHOLD = -0.5
+    
     COMPETENCE_THRESHOLD = 0.0
+    VERY_LOW_COMPETENCE_THRESHOLD = -0.5
     
     
     def __init__(self, bot, info, ttl=-1):
@@ -28,7 +33,6 @@ class YellowVictimSession(PromptSession):
         self.room_name = None
 
 
-
     # Factors to adjust Competence and Willingness
     # Robot found a yellow victim
     def robot_continue_rescue(self, number_of_actions = 0, use_confidence = False):
@@ -36,7 +40,7 @@ class YellowVictimSession(PromptSession):
         
         increment_value = -0.1   
         if use_confidence:
-            increment_value = self.calculate_increment_with_confidence(number_of_actions, increment_value)
+            increment_value = self.calculate_increment_with_confidence(self.number_of_actions, increment_value)
         
         self.increment_values("rescue_yellow", increment_value, 0, self.bot)
         self.delete_self()
@@ -46,7 +50,7 @@ class YellowVictimSession(PromptSession):
         
         increment_value = 0.1   
         if use_confidence:
-            increment_value = self.calculate_increment_with_confidence(number_of_actions, increment_value)
+            increment_value = self.calculate_increment_with_confidence(self.number_of_actions, increment_value)
             
         self.increment_values("rescue_yellow", increment_value, 0, self.bot)
         self.delete_self()
@@ -56,7 +60,7 @@ class YellowVictimSession(PromptSession):
         
         increment_value = 0.15   
         if use_confidence:
-            increment_value = self.calculate_increment_with_confidence(number_of_actions, increment_value)
+            increment_value = self.calculate_increment_with_confidence(self.number_of_actions, increment_value)
             
         self.increment_values("rescue_yellow", increment_value, 0, self.bot)
         # Wait for the human
@@ -70,7 +74,7 @@ class YellowVictimSession(PromptSession):
         
         increment_value = 0.1   
         if use_confidence:
-            increment_value = self.calculate_increment_with_confidence(number_of_actions, increment_value)
+            increment_value = self.calculate_increment_with_confidence(self.number_of_actions, increment_value)
             
         self.increment_values("rescue_yellow", 0.0, increment_value, self.bot)
     
@@ -81,7 +85,7 @@ class YellowVictimSession(PromptSession):
         
         increment_value = 0.1   
         if use_confidence:
-            increment_value = self.calculate_increment_with_confidence(number_of_actions, increment_value)
+            increment_value = self.calculate_increment_with_confidence(self.number_of_actions, increment_value)
             
         self.increment_values("rescue_yellow", increment_value, 0.0, self.bot)
     
@@ -90,7 +94,7 @@ class YellowVictimSession(PromptSession):
         
         increment_value = -0.15   
         if use_confidence:
-            increment_value = self.calculate_increment_with_confidence(number_of_actions, increment_value)
+            increment_value = self.calculate_increment_with_confidence(self.number_of_actions, increment_value)
             
         self.increment_values("rescue_yellow", increment_value, 0.0, self.bot)
     
@@ -101,7 +105,7 @@ class YellowVictimSession(PromptSession):
         
         increment_value = 0.1   
         if use_confidence:
-            increment_value = self.calculate_increment_with_confidence(number_of_actions, increment_value)
+            increment_value = self.calculate_increment_with_confidence(self.number_of_actions, increment_value)
             
         self.increment_values("rescue_yellow", 0.0, increment_value, self.bot)
     
@@ -110,7 +114,7 @@ class YellowVictimSession(PromptSession):
         
         increment_value = -0.15   
         if use_confidence:
-            increment_value = self.calculate_increment_with_confidence(number_of_actions, increment_value)
+            increment_value = self.calculate_increment_with_confidence(self.number_of_actions, increment_value)
             
         self.increment_values("rescue_yellow", 0.0, increment_value, self.bot)
     
@@ -119,7 +123,7 @@ class YellowVictimSession(PromptSession):
         
         increment_value = -0.05   
         if use_confidence:
-            increment_value = self.calculate_increment_with_confidence(number_of_actions, increment_value)
+            increment_value = self.calculate_increment_with_confidence(self.number_of_actions, increment_value)
             
         self.increment_values("rescue_yellow", 0.0, increment_value, self.bot)    
     
@@ -143,6 +147,10 @@ class YellowVictimSession(PromptSession):
         print(f"competence: {competence}")
         print(f"willingness: {willingness}")
 
+        
+        if willingness < self.VERY_LOW_WILLINGNESS_THRESHOLD or competence < self.VERY_LOW_COMPETENCE_THRESHOLD:
+            return self.TrustDecision.LOW_COMPETENCE_AND_LOW_WILLINGNESS
+        
         if willingness < self.WILLINGNESS_THRESHOLD and competence < self.COMPETENCE_THRESHOLD:
             return self.TrustDecision.LOW_COMPETENCE_AND_LOW_WILLINGNESS
         
@@ -230,7 +238,7 @@ class YellowVictimSession(PromptSession):
             
             increment_value = -0.10   
             if use_confidence:
-                increment_value = self.calculate_increment_with_confidence(number_of_actions, increment_value)
+                increment_value = self.calculate_increment_with_confidence(self.number_of_actions, increment_value)
             
             self.increment_values("rescue_yellow", increment_value, 0.0, self.bot)
 
@@ -258,7 +266,7 @@ class YellowVictimSession(PromptSession):
             
             increment_value = -0.10   
             if use_confidence:
-                increment_value = self.calculate_increment_with_confidence(number_of_actions, increment_value)
+                increment_value = self.calculate_increment_with_confidence(self.number_of_actions, increment_value)
                 
             self.increment_values("rescue_yellow", 0.0, increment_value, self.bot)
 
@@ -288,4 +296,11 @@ class YellowVictimSession(PromptSession):
         else:
             print("How did you even get here?!")
             pass
-
+    
+    
+    def calculate_increment_with_confidence(self, number_of_actions, base_increment, confidence_constant=250):
+        self.number_of_actions += 1
+        print("Number of actions Yellow Victim: " + str(self.number_of_actions))
+        
+        confidence = self.calculate_confidence(self.number_of_actions, confidence_constant)
+        return (1 - confidence) * base_increment

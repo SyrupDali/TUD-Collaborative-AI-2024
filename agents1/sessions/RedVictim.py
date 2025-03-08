@@ -51,8 +51,8 @@ class RedVictimSession(PromptSession):
             willingness_change = 0.05 * time_scale
             
             if use_confidence:
-                competence_change = self.calculate_increment_with_confidence(self.number_of_actions, competence_change)
-                willingness_change = self.calculate_increment_with_confidence(self.number_of_actions, willingness_change)
+                competence_change = self.calculate_increment_with_confidence(competence_change)
+                willingness_change = self.calculate_increment_with_confidence(willingness_change)
                 
             self.increment_values("rescue_red", willingness_change, competence_change, self.bot)
         else:
@@ -61,8 +61,8 @@ class RedVictimSession(PromptSession):
             willingness_change = -0.05
             
             if use_confidence:
-                competence_change = self.calculate_increment_with_confidence(self.number_of_actions, competence_change)
-                willingness_change = self.calculate_increment_with_confidence(self.number_of_actions, willingness_change)
+                competence_change = self.calculate_increment_with_confidence(competence_change)
+                willingness_change = self.calculate_increment_with_confidence(willingness_change)
                 
             self.increment_values("rescue_red", willingness_change, competence_change, self.bot)
 
@@ -75,7 +75,7 @@ class RedVictimSession(PromptSession):
         
         increment_value = 0.15
         if use_confidence:
-            increment_value = self.calculate_increment_with_confidence(self.number_of_actions, increment_value)
+            increment_value = self.calculate_increment_with_confidence(increment_value)
             
         self.increment_values("rescue_red", increment_value, 0, self.bot)
 
@@ -126,7 +126,7 @@ class RedVictimSession(PromptSession):
         
         increment_value = -0.15
         if use_confidence:
-            increment_value = self.calculate_increment_with_confidence(self.number_of_actions, increment_value)
+            increment_value = self.calculate_increment_with_confidence(increment_value)
             
         self.increment_values("rescue_red", increment_value, 0, self.bot)
         self.delete_self()
@@ -148,7 +148,7 @@ class RedVictimSession(PromptSession):
         if self.ttl > 0:
             self.ttl -= 1
             if self.ttl == 0:
-                return self.on_timeout(self.number_of_actions, use_confidence)
+                return self.on_timeout(use_confidence)
               
         # Only show warning message if we're waiting for initial response
         if self.currPhase == self.RedVictimPhase.WAITING_RESPONSE:
@@ -171,8 +171,8 @@ class RedVictimSession(PromptSession):
             competence_increment = -0.1
             
             if use_confidence:
-                willingness_increment = self.calculate_increment_with_confidence(self.number_of_actions, willingness_increment)
-                competence_increment = self.calculate_increment_with_confidence(self.number_of_actions, competence_increment)
+                willingness_increment = self.calculate_increment_with_confidence(willingness_increment)
+                competence_increment = self.calculate_increment_with_confidence(competence_increment)
                 
             # Larger penalty because user did not answer at all
             self.increment_values("rescue_red", willingness_increment, competence_increment, self.bot)
@@ -206,8 +206,8 @@ class RedVictimSession(PromptSession):
             competence_increment = -0.05
             
             if use_confidence:
-                willingness_increment = self.calculate_increment_with_confidence(self.number_of_actions, willingness_increment)
-                competence_increment = self.calculate_increment_with_confidence(self.number_of_actions, competence_increment)
+                willingness_increment = self.calculate_increment_with_confidence(willingness_increment)
+                competence_increment = self.calculate_increment_with_confidence(competence_increment)
                 
             # Slightly smaller penalty than ignoring from the start
             self.increment_values("rescue_red", willingness_increment, competence_increment, self.bot)
@@ -252,8 +252,8 @@ class RedVictimSession(PromptSession):
         competence_increment = 0.1
         
         if use_confidence:
-            willingness_increment = self.calculate_increment_with_confidence(self.number_of_actions, willingness_increment)
-            competence_increment = self.calculate_increment_with_confidence(self.number_of_actions, competence_increment)
+            willingness_increment = self.calculate_increment_with_confidence(willingness_increment)
+            competence_increment = self.calculate_increment_with_confidence(competence_increment)
             
         self.increment_values("rescue_red", willingness_increment, competence_increment, self.bot)
         self.bot._send_message(
@@ -278,8 +278,8 @@ class RedVictimSession(PromptSession):
         competence_increment = 0.2
         
         if use_confidence:
-            willingness_increment = self.calculate_increment_with_confidence(self.number_of_actions, willingness_increment)
-            competence_increment = self.calculate_increment_with_confidence(self.number_of_actions, competence_increment)
+            willingness_increment = self.calculate_increment_with_confidence(willingness_increment)
+            competence_increment = self.calculate_increment_with_confidence(competence_increment)
             
         # Increase willingness & competence further now that rescue is done
         self.increment_values("rescue_red", willingness_increment, competence_increment, self.bot)
@@ -312,8 +312,14 @@ class RedVictimSession(PromptSession):
         else:
             print("Warning: Could not delete red victim session - reference not found")
 
-    def increment_values(self, task, willingness, competence, bot):
-        RedVictimSession.number_of_actions += 1
-        # Update trust beliefs for a particular task by defined increments
-        bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "willingness", willingness)
-        bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "competence", competence)
+   
+         
+    @staticmethod
+    def calculate_increment_with_confidence(base_increment, action_increment = True, confidence_constant=250):
+        if action_increment:
+            RedVictimSession.number_of_actions += 1
+            
+        print("Number of actions Yellow Victim: " + str(RedVictimSession.number_of_actions))
+        
+        confidence = RedVictimSession.calculate_confidence(RedVictimSession.number_of_actions, confidence_constant)
+        return (1 - confidence) * base_increment

@@ -307,3 +307,7 @@ class YellowVictimSession(PromptSession):
         
         confidence = YellowVictimSession.calculate_confidence(YellowVictimSession.number_of_actions, confidence_constant)
         return (1 - confidence) * base_increment
+    
+    @staticmethod
+    def calculate_confidence(number_of_actions, constant):
+        return min(1.0, max(0.0, number_of_actions / constant))

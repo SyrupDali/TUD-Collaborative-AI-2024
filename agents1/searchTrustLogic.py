@@ -1,6 +1,13 @@
 import numpy as np
 import random
 
+from agents1.sessions.RockObstacle import RockObstacleSession
+from agents1.sessions.stoneObstacle import StoneObstacleSession
+from agents1.sessions.treeObstacle import TreeObstacleSession
+
+from agents1.sessions.yellowVictim import YellowVictimSession
+from agents1.sessions.RedVictim import RedVictimSession
+
 def add_room_based_on_trust(agent, competence, room_name):
     """
     Decides whether to add a room to the agent's searched list based on human trust.
@@ -82,10 +89,6 @@ def penalize_search_competence_for_claimed_searched_room_with_obstacle(agent, ob
     agent._trustBelief(agent._team_members, agent._trustBeliefs, agent._folder, 'search', 'competence', increment)
     agent._not_penalizable.append(agent._door['room_name']) # this area should not be penalized again in this search round
 
-    from sessions.RockObstacle import RockObstacleSession
-    from sessions.stoneObstacle import StoneObstacleSession
-    from sessions.treeObstacle import TreeObstacleSession
-
     if obstacle_type == 'rock':
         RockObstacleSession.increment_values("remove_rock", -0.1, -0.2, agent, False)
     if obstacle_type == 'stone':
@@ -103,9 +106,6 @@ def penalize_search_competence_for_claimed_searched_room_with_victim(agent, vict
     increment = calculate_increment_with_confidence(agent._number_of_actions_search, -0.2) if use_confidence else -0.2
     agent._trustBelief(agent._team_members, agent._trustBeliefs, agent._folder, 'search', 'competence', increment)
     agent._not_penalizable.append(agent._door['room_name']) # this area should not be penalized again in this search round
-    
-    from sessions.yellowVictim import YellowVictimSession
-    from sessions.RedVictim import RedVictimSession
     
     if 'mild' in victim:
         increment_willingness = -0.1

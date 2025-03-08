@@ -1484,11 +1484,19 @@ class BaselineAgent(ArtificialBrain):
         '''
         # Create a dictionary with trust values for all team members
         trustBeliefs = {}
+        
         # Set a default starting trust value
         # TODO: Discuss with team members what the default trust value should be,
-        #  for now we set it to 0.5, note that the trust value should be in the range of -1 to 1
         search_default = 0.0
+        rescue_yellow_default = 0.0
+        rescue_red_default = 0.0
+        remove_stone_default = 0.0
+        remove_rock_default = 0.0
+        remove_tree_default = 0.0
+        help_remove_default = 0.0
+        
         default = 0.5
+        
         trustfile_header = []
         trustfile_contents = []
         
@@ -1518,6 +1526,18 @@ class BaselineAgent(ArtificialBrain):
             if task not in trustBeliefs[self._human_name]:  # Only initialize if missing
                 if task == 'search':
                     trustBeliefs[self._human_name][task] = {'competence': search_default, 'willingness': search_default}
+                if task == 'rescue_yellow':
+                    trustBeliefs[self._human_name][task] = {'competence': rescue_yellow_default, 'willingness': rescue_yellow_default}    
+                if task == 'rescue_red':
+                    trustBeliefs[self._human_name][task] = {'competence': rescue_red_default, 'willingness': rescue_red_default}
+                if task == 'remove_rock':
+                    trustBeliefs[self._human_name][task] = {'competence': remove_rock_default, 'willingness': remove_rock_default}
+                if task == 'remove_stone':
+                    trustBeliefs[self._human_name][task] = {'competence': remove_stone_default, 'willingness': remove_stone_default}
+                if task == 'remove_tree':
+                    trustBeliefs[self._human_name][task] = {'competence': remove_tree_default, 'willingness': remove_tree_default}
+                if task == 'help_remove':
+                    trustBeliefs[self._human_name][task] = {'competence': help_remove_default, 'willingness': help_remove_default}
                 else:
                     trustBeliefs[self._human_name][task] = {'competence': default, 'willingness': default}
 

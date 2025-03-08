@@ -35,7 +35,7 @@ def calculate_confidence(number_of_actions, constant):
         """
         return min(1.0, max(0.0, number_of_actions / constant))
     
-def calculate_increment_with_confidence(number_of_actions, increment_value, confidence_constant=50):
+def calculate_increment_with_confidence(number_of_actions, increment_value, confidence_constant=80):
     """
     Adjust the increment based on confidence.
     Formula: (1 - confidence) * increment_value

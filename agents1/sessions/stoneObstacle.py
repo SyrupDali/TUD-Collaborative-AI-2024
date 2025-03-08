@@ -154,4 +154,4 @@ class StoneObstacleSession(PromptSession):
 
     @staticmethod
     def get_confidence():
-        return min(1.0, max(0.0, StoneObstacleSession.count / 2))
+        return min(1.0, max(0.0, StoneObstacleSession.count / 50))

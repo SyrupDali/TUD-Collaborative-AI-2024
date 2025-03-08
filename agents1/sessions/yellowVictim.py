@@ -41,6 +41,8 @@ class YellowVictimSession(PromptSession):
         increment_value = -0.1   
         if use_confidence:
             increment_value = self.calculate_increment_with_confidence(increment_value)
+            print(f"number_of_actions: {self.number_of_actions}")
+            print(f"Increment Value: {increment_value}")
         
         self.increment_values("rescue_yellow", increment_value, 0, self.bot)
         self.delete_yellow_victim_session()
@@ -299,7 +301,7 @@ class YellowVictimSession(PromptSession):
     
     
     @staticmethod
-    def calculate_increment_with_confidence(base_increment, action_increment = True, confidence_constant=250):
+    def calculate_increment_with_confidence(base_increment, action_increment = True, confidence_constant=80):
         if action_increment:
             YellowVictimSession.number_of_actions += 1
             

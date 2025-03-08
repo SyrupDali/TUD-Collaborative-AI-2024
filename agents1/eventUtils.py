@@ -47,7 +47,7 @@ class PromptSession:
             bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "competence", competence)
         
         
-    def calculate_increment_with_confidence(self, number_of_actions, base_increment, confidence_constant=250):
+    def calculate_increment_with_confidence(self, number_of_actions, base_increment, confidence_constant=50):
         """
         Adjust the increment based on confidence.
         Formula: (1 - confidence) * base_increment

@@ -128,4 +128,4 @@ class RockObstacleSession(PromptSession):
 
     @staticmethod
     def get_confidence():
-        return min(1.0, max(0.0, RockObstacleSession.count_actions / 2))
+        return min(1.0, max(0.0, RockObstacleSession.count_actions / 35))

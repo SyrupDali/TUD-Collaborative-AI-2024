@@ -315,7 +315,7 @@ class RedVictimSession(PromptSession):
    
          
     @staticmethod
-    def calculate_increment_with_confidence(base_increment, action_increment = True, confidence_constant=250):
+    def calculate_increment_with_confidence(base_increment, action_increment = True, confidence_constant=50):
         if action_increment:
             RedVictimSession.number_of_actions += 1
             

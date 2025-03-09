@@ -21,11 +21,35 @@ from brains1.HumanBrain import HumanBrain
 from loggers.ActionLogger import ActionLogger
 from datetime import datetime
 
+#############################
+from matrx.actions.object_actions import Action, ActionResult
+
+
+class GenerateOutput(Action):
+    def __init__(self, duration_in_ticks=0):
+        super().__init__(duration_in_ticks)
+
+    def is_possible(self, grid_world, agent_id, **kwargs):
+        return GenerateOutputResult(GenerateOutputResult.RESULT_SUCCESS, True)
+
+
+class GenerateOutputResult(ActionResult):
+    RESULT_SUCCESS = 'Created output'
+    RESULT_FAILED = 'Failed to create output'
+
+    def __init__(self, result, succeeded):
+        super().__init__(result, succeeded)
+
+
+########################################
+
+
 random_seed = 1
 verbose = False
 # Tick duration determines the speed of the world. A tick duration of 0.1 means 10 ticks are executed in a second. 
 # You can speed up or slow down the world by changing this value without changing behavior. Leave this value at 0.1 during evaluations.
 tick_duration = 0.1
+
 # Define the keyboarc controls for the human agent
 key_action_map = {
         'ArrowUp': MoveNorth.__name__,
@@ -38,6 +62,7 @@ key_action_map = {
         'a': CarryObjectTogether.__name__,
         's': DropObjectTogether.__name__,
         'e': RemoveObject.__name__,
+        '`': GenerateOutput.__name__,
     }
 
 # Some settings
@@ -66,17 +91,25 @@ def add_drop_off_zones(builder, task_type):
 
 # Add the agents to the world
 def add_agents(builder, condition, task_type, name, folder):
-    # Define the agent's sense capabilites
+    
+    # Define the agent's sense capabilites (RescueBot/Robot)
     sense_capability_agent = SenseCapability({AgentBody: agent_sense_range, CollectableBlock: object_sense_range, None: other_sense_range, ObstacleObject: 1})
+    
     # Define the human's sense capabilities based on the selected condition
+    # sense_capability describes visibility of difference objects in the world, for the agent!!
     if condition=='normal' or condition=='weak' or condition=='tutorial':
+        # The ... : ... syntax inside {} represents a dictionary in Python. The left side of the : is the key (what you are looking up). The right side of the : is the value (what is associated with the key).
+        # In Python, None is a special object that represents the absence of a value. When used as a dictionary key, None typically serves as a default case or a fallback option. Since this dictionary maps different object types (AgentBody, CollectableBlock, ObstacleObject) to specific sensing ranges, having None as a key suggests a default sensing range for any object not explicitly listed.
         sense_capability_human = SenseCapability({AgentBody: agent_sense_range, CollectableBlock: object_sense_range, None: other_sense_range, ObstacleObject: 1})
+    # Similar visibility as normal and weak, except Obstacles => for which visibility = 10 tiles!
     if condition=='strong':
         sense_capability_human = SenseCapability({AgentBody: agent_sense_range, CollectableBlock: object_sense_range, None: other_sense_range, ObstacleObject: 10})
 
+    # 1 team = humans + robot agents. We have 1 team
     for team in range(nr_teams):
         team_name = f"Team {team}"
-        # Add the artificial agents based on condition
+        
+        # Add the artificial agents based on condition (These are the robot agents, RescueBot in our case (so 1 agent))
         nr_agents = agents_per_team - human_agents_per_team
         for agent_nr in range(nr_agents):
             if task_type=="official":
@@ -104,7 +137,7 @@ def create_builder(task_type, condition, name, folder):
     # Set numpy's random generator
     np.random.seed(random_seed)
     # Create the collection goal
-    goal = CollectionGoal(max_nr_ticks=np.inf)
+    goal = CollectionGoal(max_nr_ticks=7000)
     # Create the world builder
     if task_type=="official":
         builder = WorldBuilder(shape=[25,24], tick_duration=tick_duration, run_matrx_api=True, run_matrx_visualizer=False, verbose=verbose, simulation_goal=goal, visualization_bg_clr='#9a9083')

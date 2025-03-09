@@ -546,8 +546,8 @@ class BaselineAgent(ArtificialBrain):
                 # Identify which obstacle is blocking the entrance
                 for info in state.values():
                     if 'class_inheritance' in info and 'ObstacleObject' in info['class_inheritance'] and 'rock' in info['obj_id']:
-                        if info['obj_id'] in self._skipped_obstacles:
-                            continue
+                        # if info['obj_id'] in self._skipped_obstacles:
+                        #     continue
 
                         objects.append(info)
                         # Competence Update: Decrease trust in human if bot found obstacles at the entrance of the claimed searched area
@@ -782,8 +782,8 @@ class BaselineAgent(ArtificialBrain):
                             return None, {}
                         
                     if 'class_inheritance' in info and 'ObstacleObject' in info['class_inheritance'] and 'rock' in info['obj_id']:
-                        if info['obj_id'] in self._skipped_obstacles:
-                            continue
+                        # if info['obj_id'] in self._skipped_obstacles:
+                        #     continue
                         objects.append(info)
                         # verify if the room is blocked by an obstacle
                         if self._remove and not self._waiting:

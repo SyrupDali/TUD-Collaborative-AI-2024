@@ -78,6 +78,9 @@ class RockObstacleSession(PromptSession):
         Override the default wait method to check for human arrival.
         Returns None, {} to maintain idle state.
         """
+        if self.ttl % 5 == 0:
+            print("ttl: ", self.ttl)
+
         if self.currPhase == self.RockObstaclePhase.WAITING_HUMAN:
             # Check if human has arrived
             state = self.bot.state
@@ -109,6 +112,7 @@ class RockObstacleSession(PromptSession):
         self.bot._waiting = False
         self.bot._remove = False
         self.bot._phase = Phase.FIND_NEXT_GOAL
+        self.bot._to_search.append(self.bot._door['room_name'])
 
         # Actually remove the session from the agent
         self.delete_self()

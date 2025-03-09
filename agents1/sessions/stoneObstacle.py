@@ -146,7 +146,8 @@ class StoneObstacleSession(PromptSession):
     def increment_values(task, willingness, competence, bot, is_action=True):
         if is_action:
             StoneObstacleSession.count += 1
-        print("Confidence:", StoneObstacleSession.get_confidence())
+            bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "count", StoneObstacleSession.count)
+
         bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "willingness",
                          StoneObstacleSession.get_confidence() * willingness)
         bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "competence",

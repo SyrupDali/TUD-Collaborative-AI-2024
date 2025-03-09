@@ -1509,14 +1509,14 @@ class BaselineAgent(ArtificialBrain):
                     continue
                 # Retrieve trust values 
                 if row and row[0] == self._human_name:
-                    name, task, competence, willingness = row[0], row[1], float(row[2]), float(row[3])
+                    name, task, competence, willingness, count = row[0], row[1], float(row[2]), float(row[3]), row[4]
                     
                     # Ensure dictionary structure exists
                     if name not in trustBeliefs:
                         trustBeliefs[name] = {}
 
                     # Store retrieved trust values for performed tasks
-                    trustBeliefs[name][task] = {'competence': competence, 'willingness': willingness}
+                    trustBeliefs[name][task] = {'competence': competence, 'willingness': willingness, 'count':count}
 
         # Check for missing tasks and initialize defaults only for them**
         if self._human_name not in trustBeliefs:
@@ -1525,21 +1525,30 @@ class BaselineAgent(ArtificialBrain):
         for task in self._tasks:
             if task not in trustBeliefs[self._human_name]:  # Only initialize if missing
                 if task == 'search':
-                    trustBeliefs[self._human_name][task] = {'competence': search_default, 'willingness': search_default}
+                    trustBeliefs[self._human_name][task] = {'competence': search_default, 'willingness': search_default, 'count': 0}
                 if task == 'rescue_yellow':
-                    trustBeliefs[self._human_name][task] = {'competence': rescue_yellow_default, 'willingness': rescue_yellow_default}    
+                    trustBeliefs[self._human_name][task] = {'competence': rescue_yellow_default, 'willingness': rescue_yellow_default, 'count': 0}
                 if task == 'rescue_red':
-                    trustBeliefs[self._human_name][task] = {'competence': rescue_red_default, 'willingness': rescue_red_default}
+                    trustBeliefs[self._human_name][task] = {'competence': rescue_red_default, 'willingness': rescue_red_default, 'count': 0}
                 if task == 'remove_rock':
-                    trustBeliefs[self._human_name][task] = {'competence': remove_rock_default, 'willingness': remove_rock_default}
+                    trustBeliefs[self._human_name][task] = {'competence': remove_rock_default, 'willingness': remove_rock_default, 'count': 0}
                 if task == 'remove_stone':
-                    trustBeliefs[self._human_name][task] = {'competence': remove_stone_default, 'willingness': remove_stone_default}
+                    trustBeliefs[self._human_name][task] = {'competence': remove_stone_default, 'willingness': remove_stone_default, 'count': 0}
                 if task == 'remove_tree':
-                    trustBeliefs[self._human_name][task] = {'competence': remove_tree_default, 'willingness': remove_tree_default}
+                    trustBeliefs[self._human_name][task] = {'competence': remove_tree_default, 'willingness': remove_tree_default, 'count': 0}
                 if task == 'help_remove':
-                    trustBeliefs[self._human_name][task] = {'competence': help_remove_default, 'willingness': help_remove_default}
+                    trustBeliefs[self._human_name][task] = {'competence': help_remove_default, 'willingness': help_remove_default, 'count': 0}
                 else:
-                    trustBeliefs[self._human_name][task] = {'competence': default, 'willingness': default}
+                    trustBeliefs[self._human_name][task] = {'competence': default, 'willingness': default, 'count': 0}
+
+        # TODO: refactor this structure
+        # trustBeliefs[self._human_name]['search']['count']
+        YellowVictimSession.number_of_actions = trustBeliefs[self._human_name]['rescue_yellow']['count']
+        RedVictimSession.number_of_actions = trustBeliefs[self._human_name]['rescue_red']['count']
+        RockObstacleSession.count_actions = trustBeliefs[self._human_name]['remove_rock']['count']
+        StoneObstacleSession.count = trustBeliefs[self._human_name]['remove_stone']['count']
+        TreeObstacleSession.count = trustBeliefs[self._human_name]['remove_tree']['count']
+        self._number_of_actions_help_remove = trustBeliefs[self._human_name]['help_remove']['count']
 
         return trustBeliefs
 
@@ -1554,9 +1563,11 @@ class BaselineAgent(ArtificialBrain):
 
         # Save current trust belief values so we can later use and retrieve them to add to a csv file with all the logged trust belief values
         # Update the trust value
-        trustBeliefs[self._human_name][task][belief] += increment 
-        # Restrict the belief value to a range of -1 to 1
-        trustBeliefs[self._human_name][task][belief] = np.clip(trustBeliefs[self._human_name][task][belief], -1, 1)
+        trustBeliefs[self._human_name][task][belief] += increment
+
+        if belief != 'count':
+            # Restrict the belief value to a range of -1 to 1
+            trustBeliefs[self._human_name][task][belief] = np.clip(trustBeliefs[self._human_name][task][belief], -1, 1)
 
         # Save current trust belief values to a CSV file for logging
         with open(folder + '/beliefs/currentTrustBelief.csv', mode='w') as csv_file:

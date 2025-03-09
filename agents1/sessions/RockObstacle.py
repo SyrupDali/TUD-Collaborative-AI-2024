@@ -120,7 +120,8 @@ class RockObstacleSession(PromptSession):
     def increment_values(task, willingness, competence, bot, is_action=True):
         if is_action:
             RockObstacleSession.count_actions += 1
-        print("Confidence:", RockObstacleSession.get_confidence())
+            bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "count", RockObstacleSession.count_actions)
+
         bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "willingness",
                          RockObstacleSession.get_confidence() * willingness)
         bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "competence",

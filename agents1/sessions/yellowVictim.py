@@ -1,5 +1,5 @@
 import enum
-from agents1.eventUtils import PromptSession
+from agents1.eventUtils import PromptSession, Scenario
 
 
 class YellowVictimSession(PromptSession):
@@ -313,3 +313,11 @@ class YellowVictimSession(PromptSession):
     @staticmethod
     def calculate_confidence(number_of_actions, constant):
         return min(1.0, max(0.0, number_of_actions / constant))
+
+    @staticmethod
+    def increment_values(task, willingness, competence, bot):
+        bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "count", YellowVictimSession.number_of_actions)
+        # Update trust beliefs for a particular task by defined increments
+        if PromptSession.scenario_used == Scenario.USE_TRUST_MECHANISM:
+            bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "willingness", willingness)
+            bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "competence", competence)

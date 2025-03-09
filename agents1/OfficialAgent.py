@@ -1339,6 +1339,9 @@ class BaselineAgent(ArtificialBrain):
                     else:
                         reward_search_competence_for_claimed_searched_room(self, area, use_confidence=True)
                         self._number_of_actions_search += 1
+                        # Update 'count' in csv
+                        self._trustBelief(self._team_members, self._trustBeliefs, self._folder, 'search', "count",
+                                         self._number_of_actions_search)
                         self._searched_rooms_claimed_by_human.append(area)
                         update_search_willingness(self, use_confidence=True)
                     # avoid processing the same message multiple times
@@ -1542,7 +1545,7 @@ class BaselineAgent(ArtificialBrain):
                     trustBeliefs[self._human_name][task] = {'competence': default, 'willingness': default, 'count': 0}
 
         # TODO: refactor this structure
-        # trustBeliefs[self._human_name]['search']['count']
+        self._number_of_actions_search = trustBeliefs[self._human_name]['search']['count']
         YellowVictimSession.number_of_actions = trustBeliefs[self._human_name]['rescue_yellow']['count']
         RedVictimSession.number_of_actions = trustBeliefs[self._human_name]['rescue_red']['count']
         RockObstacleSession.count_actions = trustBeliefs[self._human_name]['remove_rock']['count']

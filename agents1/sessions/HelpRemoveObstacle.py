@@ -105,6 +105,8 @@ class HelpRemoveObstacleSession(PromptSession):
         Z = num_searched_rooms_by_agent
         Compute the willingness update based on the number of areas the human asked for help and the number of areas the agent actually searched.
         """
+        if Z == 0:
+            return 0.2
         if Z == 14:
             return 0
         percentage = X / Z

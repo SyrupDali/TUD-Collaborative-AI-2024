@@ -11,6 +11,7 @@ class StoneObstacleSession(PromptSession):
     def __init__(self, bot, info, ttl=-1):
         super().__init__(bot, info, ttl)
         self.currPhase = self.StoneObstaclePhase.WAITING_RESPONSE
+        print("[Remove Stone] Creating Remove Stone Session. Prev prompt:", bot._current_prompt)
 
     @staticmethod
     def process_trust(bot, info):
@@ -98,7 +99,10 @@ class StoneObstacleSession(PromptSession):
     @staticmethod
     def help_remove_together(bot, info, ttl=400):
         if not isinstance(bot._current_prompt, StoneObstacleSession):
-            print("[Remove Stone] Attaching a new StoneObstacleSession")
+            print("[Remove Stone] Attaching a new StoneObstacleSession. Prev Prompt:", bot._current_prompt)
+            bot._send_message(
+                'Please come to ' + str(bot._door['room_name']) + ' to remove stones together.',
+                'RescueBot')
             # Attach a new session to the bot
             curr_session = StoneObstacleSession(bot, info, ttl)
             curr_session.currPhase = StoneObstacleSession.StoneObstaclePhase.WAITING_HUMAN

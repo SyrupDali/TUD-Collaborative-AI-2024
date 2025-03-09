@@ -58,25 +58,27 @@ class TreeObstacleSession(PromptSession):
         return RemoveObject.__name__, {'object_id': info['obj_id']}
 
     def continue_tree(self):
-        print("Continue Tree heard")
+        print("[Remove Tree] Continuing...")
         if self.scenario_used == Scenario.USE_TRUST_MECHANISM:
             self.increment_values("remove_tree", -0.1, 0, self.bot)
+        print("[Remove Tree] Deleting Session")
         self.delete_self()
 
     def remove_tree(self):
-        print("Remove Tree heard")
+        print("[Remove Tree] Remove Tree heard")
         if self.scenario_used == Scenario.USE_TRUST_MECHANISM:
             self.increment_values("remove_tree", 0.1, 0, self.bot)
+        print("[Remove Tree] Deleting Session")
         self.delete_self()
 
     # Static method for removal when no prompt is generated as the human asked the bot to remove an obstacle
     @staticmethod
     def help_remove_tree(bot):
-        print("Help Remove Tree heard")
+        print("[Remove Tree] Help Remove Tree heard")
         TreeObstacleSession.increment_values("remove_tree", 0.1, 0, bot)
 
     def on_timeout(self):
-        print("Timed out waiting for response!")
+        print("[Remove Tree] Timed out waiting for response!")
         if self.scenario_used == Scenario.USE_TRUST_MECHANISM:
             self.increment_values("remove_tree", -0.15, -0.15, self.bot)
 
@@ -88,6 +90,7 @@ class TreeObstacleSession(PromptSession):
         self.bot._phase = Phase.ENTER_ROOM
         self.bot._remove = False
 
+        print("[Remove Tree] Deleting Session")
         self.delete_self()
 
         return RemoveObject.__name__, {'object_id': self.info['obj_id']}

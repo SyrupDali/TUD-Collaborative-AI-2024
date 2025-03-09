@@ -1,5 +1,6 @@
 import enum
-from agents1.eventUtils import PromptSession
+from agents1.eventUtils import PromptSession, Scenario
+
 
 class HelpRemoveObstacleSession(PromptSession):
     class TrustDecision(enum.Enum):
@@ -104,7 +105,18 @@ class HelpRemoveObstacleSession(PromptSession):
         Z = num_searched_rooms_by_agent
         Compute the willingness update based on the number of areas the human asked for help and the number of areas the agent actually searched.
         """
+        if Z == 0:
+            return 0.2
         if Z == 14:
             return 0
         percentage = X / Z
         return (percentage - 0.6) * X / 2
+
+    @staticmethod
+    def increment_values(task, willingness, competence, bot):
+        bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "count",
+                         bot._number_of_actions_help_remove)
+        # Update trust beliefs for a particular task by defined increments
+        if PromptSession.scenario_used == Scenario.USE_TRUST_MECHANISM:
+            bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "willingness", willingness)
+            bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "competence", competence)

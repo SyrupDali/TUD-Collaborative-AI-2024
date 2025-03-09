@@ -104,4 +104,4 @@ def output_logger(fld):
     with open(trust_file_path, mode='w', newline='') as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         csv_writer.writerow(trustfile_header)  # Write header
-        csv_writer.writerows(updated_trust + [[t['name'], t['task'], t['competence'], t['willingness']] for t in trustfile_contents])  # Append new data
+        csv_writer.writerows(updated_trust + [[t['name'], t['task'], t['competence'], t['willingness'], t['count']] for t in trustfile_contents])  # Append new data

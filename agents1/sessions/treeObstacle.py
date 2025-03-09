@@ -21,8 +21,8 @@ class TreeObstacleSession(PromptSession):
 
             return RemoveObject.__name__, {'object_id': info['obj_id']}
 
-        VERY_LOW_COMPETENCE_THRESHOLD = -0.2
-        VERY_LOW_WILLINGNESS_THRESHOLD = -0.3
+        VERY_LOW_COMPETENCE_THRESHOLD = -0.6
+        VERY_LOW_WILLINGNESS_THRESHOLD = -0.6
         if (bot._trustBeliefs[bot._human_name]['remove_tree']['competence'] < VERY_LOW_COMPETENCE_THRESHOLD or
                 bot._trustBeliefs[bot._human_name]['remove_tree']['willingness'] < VERY_LOW_WILLINGNESS_THRESHOLD):
             bot._answered = True
@@ -36,8 +36,8 @@ class TreeObstacleSession(PromptSession):
 
             return RemoveObject.__name__, {'object_id': info['obj_id']}
 
-        LOW_COMPETENCE_THRESHOLD = 0.1
-        LOW_WILLINGNESS_THRESHOLD = 0.1
+        LOW_COMPETENCE_THRESHOLD = -0.25
+        LOW_WILLINGNESS_THRESHOLD = -0.25
 
         if bot._trustBeliefs[bot._human_name]['remove_tree']['competence'] > LOW_COMPETENCE_THRESHOLD:
             return None
@@ -96,7 +96,8 @@ class TreeObstacleSession(PromptSession):
     def increment_values(task, willingness, competence, bot, is_action=True):
         if is_action:
             TreeObstacleSession.count += 1
-        print("Confidence:", TreeObstacleSession.get_confidence())
+            bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "count", TreeObstacleSession.count)
+
         bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "willingness",
                          TreeObstacleSession.get_confidence() * willingness)
         bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "competence",
@@ -104,4 +105,4 @@ class TreeObstacleSession(PromptSession):
 
     @staticmethod
     def get_confidence():
-        return min(1.0, max(0.0, TreeObstacleSession.count / 2))
+        return min(1.0, max(0.0, TreeObstacleSession.count / 35))

@@ -51,14 +51,14 @@ def output_logger(fld):
                 objects_removed_alone += 1
 
             # If the score increased, we must've rescued a victim
-            if row[2] == 'DropObjectTogether' and prev_row[0] < row[0]:
+            if row[2] == 'DropObjectTogether' and prev_row[1] < row[1]:
                 victims_rescued_together += 1
-            if row[4] == 'DropObjectTogether' and prev_row[0] < row[0]:
+            if row[4] == 'DropObjectTogether' and prev_row[1] < row[1]:
                 victims_rescued_together += 1
 
-            if row[2] == 'Drop' and prev_row[0] < row[0]:
+            if row[2] == 'Drop' and prev_row[1] < row[1]:
                 victims_rescued_alone += 1
-            if row[4] == 'Drop' and prev_row[0] < row[0]:
+            if row[4] == 'Drop' and prev_row[1] < row[1]:
                 victims_rescued_alone += 1
 
             prev_row = row

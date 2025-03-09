@@ -69,6 +69,7 @@ class StoneObstacleSession(PromptSession):
         if self.scenario_used == Scenario.USE_TRUST_MECHANISM:
             print("[Remove Stone] Updating Beliefs")
             self.increment_values("remove_stone", -0.1, 0, self.bot)
+        print("[Remove Stone] Deleting Session")
         self.delete_self()
 
     def remove_alone(self):
@@ -76,6 +77,7 @@ class StoneObstacleSession(PromptSession):
         if self.scenario_used == Scenario.USE_TRUST_MECHANISM:
             print("[Remove Stone] Updating Beliefs")
             self.increment_values("remove_stone", 0.1, 0, self.bot)
+        print("[Remove Stone] Deleting Session")
         self.delete_self()
 
     def remove_together(self, ttl=400):
@@ -108,6 +110,7 @@ class StoneObstacleSession(PromptSession):
         if self.scenario_used == Scenario.USE_TRUST_MECHANISM:
             print("[Remove Stone] Updating Beliefs")
             self.increment_values("remove_stone", 0.1, 0.2, self.bot)
+        print("[Remove Stone] Deleting Session")
         self.delete_self()
 
     def on_timeout(self):
@@ -126,6 +129,7 @@ class StoneObstacleSession(PromptSession):
             self.bot._phase = Phase.ENTER_ROOM
             self.bot._remove = False
 
+            print("[Remove Stone] Deleting Session")
             self.delete_self()
             return RemoveObject.__name__, {'object_id': self.info['obj_id']}
 
@@ -143,6 +147,7 @@ class StoneObstacleSession(PromptSession):
             self.bot._phase = Phase.ENTER_ROOM
             self.bot._remove = False
 
+            print("[Remove Stone] Deleting Session")
             self.delete_self()
             return RemoveObject.__name__, {'object_id': self.info['obj_id']}
 

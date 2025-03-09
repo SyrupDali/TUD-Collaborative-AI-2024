@@ -752,6 +752,9 @@ class BaselineAgent(ArtificialBrain):
                             # Tell the human to remove the obstacle when he/she arrives
                             if state[{'is_human_agent': True}]:
                                 if not isinstance(self._current_prompt, StoneObstacleSession):
+                                    self._send_message(
+                                        'Lets remove stones blocking ' + str(self._door['room_name']) + '!',
+                                        'RescueBot')
                                     tmp = StoneObstacleSession.help_remove_together(self, info)
                                     if tmp is not None:
                                         return tmp
@@ -761,8 +764,6 @@ class BaselineAgent(ArtificialBrain):
                                 if tmp is not None:
                                     return tmp
 
-                                self._send_message('Lets remove stones blocking ' + str(self._door['room_name']) + '!',
-                                                  'RescueBot')
                                 return None, {}
                         # Remain idle until the human communicates what to do with the identified obstacle
                         else:

@@ -751,7 +751,16 @@ class BaselineAgent(ArtificialBrain):
                                 return None, {}
                             # Tell the human to remove the obstacle when he/she arrives
                             if state[{'is_human_agent': True}]:
-                                self._current_prompt.remove_together()
+                                if not isinstance(self._current_prompt, StoneObstacleSession):
+                                    tmp = StoneObstacleSession.help_remove_together(self, info)
+                                    if tmp is not None:
+                                        return tmp
+
+                                # If a help remove was called earlier and the bot is now stuck here
+                                tmp = self._current_prompt.remove_together()
+                                if tmp is not None:
+                                    return tmp
+
                                 self._send_message('Lets remove stones blocking ' + str(self._door['room_name']) + '!',
                                                   'RescueBot')
                                 return None, {}

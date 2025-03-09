@@ -80,7 +80,7 @@ class StoneObstacleSession(PromptSession):
 
     def remove_together(self, ttl=400):
         if self.currPhase == self.StoneObstaclePhase.WAITING_HUMAN:
-            return
+            return self.wait()
 
         print("[Remove Stone] Remove Together heard")
 

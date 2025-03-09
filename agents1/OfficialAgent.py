@@ -120,9 +120,6 @@ class BaselineAgent(ArtificialBrain):
         # Used when Removing Obstacles
         self._number_of_actions_help_remove = 0
         self._help_remove_obstacle_session = HelpRemoveObstacleSession(self, None, 100)
-        
-        # Keep track of obstacles we've decided to skip
-        self._skipped_obstacles = []
         #TODO: Get rid of unused variables!
 
     def initialize(self):
@@ -536,8 +533,6 @@ class BaselineAgent(ArtificialBrain):
                 # Identify which obstacle is blocking the entrance
                 for info in state.values():
                     if 'class_inheritance' in info and 'ObstacleObject' in info['class_inheritance'] and 'rock' in info['obj_id']:
-                        if info['obj_id'] in self._skipped_obstacles:
-                            continue
 
                         objects.append(info)
                         # Competence Update: Decrease trust in human if bot found obstacles at the entrance of the claimed searched area
@@ -567,7 +562,6 @@ class BaselineAgent(ArtificialBrain):
                                 self._current_prompt.continue_rock()
                             self._answered = True
                             self._waiting = False
-                            self._skipped_obstacles.append(info['obj_id'])
                             self._to_search.append(self._door['room_name'])
                             self._phase = Phase.FIND_NEXT_GOAL
 
@@ -772,9 +766,6 @@ class BaselineAgent(ArtificialBrain):
                             return None, {}
                         
                     if 'class_inheritance' in info and 'ObstacleObject' in info['class_inheritance'] and 'rock' in info['obj_id']:
-                        if info['obj_id'] in self._skipped_obstacles:
-                            continue
-
                         objects.append(info)
                         # verify if the room is blocked by an obstacle
                         if self._remove and not self._waiting:
@@ -800,7 +791,6 @@ class BaselineAgent(ArtificialBrain):
                             self._current_prompt.continue_rock()
                             self._answered = True
                             self._waiting = False
-                            self._skipped_obstacles.append(info['obj_id'])
                             self._to_search.append(self._door['room_name'])
                             self._phase = Phase.FIND_NEXT_GOAL
 
@@ -1522,7 +1512,7 @@ class BaselineAgent(ArtificialBrain):
                     continue
                 # Retrieve trust values 
                 if row and row[0] == self._human_name:
-                    name, task, competence, willingness, count = row[0], row[1], float(row[2]), float(row[3]), row[4]
+                    name, task, competence, willingness, count = row[0], row[1], float(row[2]), float(row[3]), int(row[4])
                     
                     # Ensure dictionary structure exists
                     if name not in trustBeliefs:

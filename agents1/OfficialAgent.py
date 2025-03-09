@@ -1488,12 +1488,12 @@ class BaselineAgent(ArtificialBrain):
         # Set a default starting trust value
         # TODO: Discuss with team members what the default trust value should be,
         search_default = 0.0
-        rescue_yellow_default = 0.0
-        rescue_red_default = 0.0
-        remove_stone_default = 0.0
-        remove_rock_default = 0.0
-        remove_tree_default = 0.0
-        help_remove_default = 0.0
+        rescue_yellow_default = 0.25
+        rescue_red_default = 0.25
+        remove_stone_default = 0.25
+        remove_rock_default = 0.25
+        remove_tree_default = 0.25
+        help_remove_default = 0.25
         
         default = 0.5
         

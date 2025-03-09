@@ -21,8 +21,8 @@ class TreeObstacleSession(PromptSession):
 
             return RemoveObject.__name__, {'object_id': info['obj_id']}
 
-        VERY_LOW_COMPETENCE_THRESHOLD = -0.2
-        VERY_LOW_WILLINGNESS_THRESHOLD = -0.3
+        VERY_LOW_COMPETENCE_THRESHOLD = -0.6
+        VERY_LOW_WILLINGNESS_THRESHOLD = -0.6
         if (bot._trustBeliefs[bot._human_name]['remove_tree']['competence'] < VERY_LOW_COMPETENCE_THRESHOLD or
                 bot._trustBeliefs[bot._human_name]['remove_tree']['willingness'] < VERY_LOW_WILLINGNESS_THRESHOLD):
             bot._answered = True
@@ -36,8 +36,8 @@ class TreeObstacleSession(PromptSession):
 
             return RemoveObject.__name__, {'object_id': info['obj_id']}
 
-        LOW_COMPETENCE_THRESHOLD = 0.1
-        LOW_WILLINGNESS_THRESHOLD = 0.1
+        LOW_COMPETENCE_THRESHOLD = -0.25
+        LOW_WILLINGNESS_THRESHOLD = -0.25
 
         if bot._trustBeliefs[bot._human_name]['remove_tree']['competence'] > LOW_COMPETENCE_THRESHOLD:
             return None

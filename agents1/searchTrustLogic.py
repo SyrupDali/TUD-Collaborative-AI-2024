@@ -1,6 +1,7 @@
 import numpy as np
 import random
 
+from agents1.eventUtils import PromptSession, Scenario
 from agents1.sessions.RockObstacle import RockObstacleSession
 from agents1.sessions.stoneObstacle import StoneObstacleSession
 from agents1.sessions.treeObstacle import TreeObstacleSession
@@ -52,6 +53,9 @@ def update_search_willingness(agent, use_confidence=False):
     """
     Update the search willingness after the agent sends a room to the human.
     """
+    if PromptSession.scenario_used != Scenario.USE_TRUST_MECHANISM:
+        return
+
     base_increment = compute_search_willingness_update(len(agent._searched_rooms_claimed_by_human), len(agent._searched_rooms_by_agent))
     increment = calculate_increment_with_confidence(agent._number_of_actions_search, base_increment) if use_confidence else base_increment
     agent._trustBeliefs[agent._human_name]['search']['willingness'] = agent._search_willingness_start_value + increment
@@ -76,6 +80,9 @@ def penalize_search_willingness_for_sending_rooms_already_searched(agent, area, 
     Penalize the agent's willingness to search if it sends rooms that the human has already
     claimed to have searched.
     """
+    if PromptSession.scenario_used != Scenario.USE_TRUST_MECHANISM:
+        return
+
     increment = calculate_increment_with_confidence(agent._number_of_actions_search, -0.1) if use_confidence else -0.1
     agent._trustBelief(agent._team_members, agent._trustBeliefs, agent._folder, 'search', 'willingness', increment)
     print(f"[SearchTrust] Penalizing search willingness for sending rooms already searched ({area}): {increment:.2f}")
@@ -85,6 +92,9 @@ def penalize_search_competence_for_claimed_searched_room_with_obstacle(agent, ob
     """
     Penalize the agent's search competence if it finds an obstacle in a room that was claimed searched.
     """
+    if PromptSession.scenario_used != Scenario.USE_TRUST_MECHANISM:
+        return
+
     increment = calculate_increment_with_confidence(agent._number_of_actions_search, -0.2) if use_confidence else -0.2
     agent._trustBelief(agent._team_members, agent._trustBeliefs, agent._folder, 'search', 'competence', increment)
     agent._not_penalizable.append(agent._door['room_name']) # this area should not be penalized again in this search round
@@ -103,6 +113,9 @@ def penalize_search_competence_for_claimed_searched_room_with_victim(agent, vict
     """
     Penalize the agent's search competence if it finds a victim in a room that was claimed searched.
     """
+    if PromptSession.scenario_used != Scenario.USE_TRUST_MECHANISM:
+        return
+
     increment = calculate_increment_with_confidence(agent._number_of_actions_search, -0.2) if use_confidence else -0.2
     agent._trustBelief(agent._team_members, agent._trustBeliefs, agent._folder, 'search', 'competence', increment)
     agent._not_penalizable.append(agent._door['room_name']) # this area should not be penalized again in this search round
@@ -134,6 +147,9 @@ def reward_search_competence_for_claimed_searched_room(agent, area, use_confiden
     """
     Reward the agent's search competence if it finds no obstacles or victims in a room that was claimed searched.
     """
+    if PromptSession.scenario_used != Scenario.USE_TRUST_MECHANISM:
+        return
+
     increment = calculate_increment_with_confidence(agent._number_of_actions_search, 0.1) if use_confidence else 0.1
     agent._trustBelief(agent._team_members, agent._trustBeliefs, agent._folder, 'search', 'competence', increment)
     print(f"[SearchTrust] Rewarding search competence for claiming a searched room ({area}): {increment:.2f}")

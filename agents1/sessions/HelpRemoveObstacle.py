@@ -40,7 +40,6 @@ class HelpRemoveObstacleSession(PromptSession):
                 # indicate that the human lied about searching the area
                 # or that the human is not competent enough to find the obstacle?(tricking the bot)
                 self.bot._searched_rooms.remove(area)
-                #TODO: try to run this code and see if it penalizes the search competence
             # Clear received messages (bug fix)
             self.bot.received_messages = []
             self.bot.received_messages_content = []

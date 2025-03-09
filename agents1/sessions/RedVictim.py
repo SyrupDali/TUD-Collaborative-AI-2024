@@ -240,8 +240,7 @@ class RedVictimSession(PromptSession):
         else:
             print("on_timeout called, but we are in an unknown phase. No action taken.")
             return 1
-    
-    # TODO: Evaluate whether this gets called at all
+
     def human_showed_up(self, use_confidence=False):
         """
         Called when the human arrives at the victim location.

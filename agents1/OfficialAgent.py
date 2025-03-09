@@ -124,8 +124,6 @@ class BaselineAgent(ArtificialBrain):
         # Keep track of obstacles we've decided to skip
         self._skipped_obstacles = []
 
-        #TODO: Get rid of unused variables!
-
     def initialize(self):
         # Initialization of the state tracker and navigation algorithm
         self._state_tracker = StateTracker(agent_id=self.agent_id)
@@ -1563,7 +1561,6 @@ class BaselineAgent(ArtificialBrain):
                 else:
                     trustBeliefs[self._human_name][task] = {'competence': default, 'willingness': default, 'count': 0}
 
-        # TODO: refactor this structure
         self._number_of_actions_search = trustBeliefs[self._human_name]['search']['count']
         YellowVictimSession.number_of_actions = trustBeliefs[self._human_name]['rescue_yellow']['count']
         RedVictimSession.number_of_actions = trustBeliefs[self._human_name]['rescue_red']['count']

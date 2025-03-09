@@ -1572,10 +1572,10 @@ class BaselineAgent(ArtificialBrain):
         # Save current trust belief values to a CSV file for logging
         with open(folder + '/beliefs/currentTrustBelief.csv', mode='w') as csv_file:
             csv_writer = csv.writer(csv_file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-            csv_writer.writerow(['name', 'task', 'competence', 'willingness'])
+            csv_writer.writerow(['name', 'task', 'competence', 'willingness', 'count'])
             for name, tasks in trustBeliefs.items():
                 for task, values in tasks.items():
-                    csv_writer.writerow([name, task, values['competence'], values['willingness']])
+                    csv_writer.writerow([name, task, values['competence'], values['willingness'], values['count']])
             # csv_writer.writerow([
             #     self._human_name,
             #     task,

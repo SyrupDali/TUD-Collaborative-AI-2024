@@ -27,8 +27,8 @@ class StoneObstacleSession(PromptSession):
 
             return RemoveObject.__name__, {'object_id': info['obj_id']}
 
-        VERY_LOW_COMPETENCE_THRESHOLD = -0.55
-        VERY_LOW_WILLINGNESS_THRESHOLD = -0.55
+        VERY_LOW_COMPETENCE_THRESHOLD = -0.6
+        VERY_LOW_WILLINGNESS_THRESHOLD = -0.6
         if (bot._trustBeliefs[bot._human_name]['remove_stone']['competence'] < VERY_LOW_COMPETENCE_THRESHOLD or
                 bot._trustBeliefs[bot._human_name]['remove_stone']['willingness'] < VERY_LOW_WILLINGNESS_THRESHOLD):
             # If we have low competence and willingness beliefs for the human, remove the stone immediately

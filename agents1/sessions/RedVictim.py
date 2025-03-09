@@ -1,5 +1,6 @@
 import enum, time, math
-from agents1.eventUtils import PromptSession
+from agents1.eventUtils import PromptSession, Scenario
+
 
 class RedVictimSession(PromptSession):
     number_of_actions = 0
@@ -318,8 +319,6 @@ class RedVictimSession(PromptSession):
     def calculate_increment_with_confidence(base_increment, action_increment = True, confidence_constant=50):
         if action_increment:
             RedVictimSession.number_of_actions += 1
-            
-        print("Number of actions Yellow Victim: " + str(RedVictimSession.number_of_actions))
         
         confidence = RedVictimSession.calculate_confidence(RedVictimSession.number_of_actions, confidence_constant)
         return (1 - confidence) * base_increment
@@ -327,3 +326,11 @@ class RedVictimSession(PromptSession):
     @staticmethod
     def calculate_confidence(number_of_actions, constant):
         return min(1.0, max(0.0, number_of_actions / constant))
+
+    @staticmethod
+    def increment_values(task, willingness, competence, bot):
+        bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "count", RedVictimSession.number_of_actions)
+        # Update trust beliefs for a particular task by defined increments
+        if PromptSession.scenario_used == Scenario.USE_TRUST_MECHANISM:
+            bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "willingness", willingness)
+            bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "competence", competence)

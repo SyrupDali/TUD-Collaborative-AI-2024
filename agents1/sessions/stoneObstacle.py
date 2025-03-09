@@ -11,6 +11,7 @@ class StoneObstacleSession(PromptSession):
     def __init__(self, bot, info, ttl=-1):
         super().__init__(bot, info, ttl)
         self.currPhase = self.StoneObstaclePhase.WAITING_RESPONSE
+        print("[Remove Stone] Creating Remove Stone Session. Prev prompt:", bot._current_prompt)
 
     @staticmethod
     def process_trust(bot, info):
@@ -65,20 +66,29 @@ class StoneObstacleSession(PromptSession):
         return RemoveObject.__name__, {'object_id': info['obj_id']}
 
     def continue_stone(self):
-        print("Continue Stone heard")
+        print("[Remove Stone] Continuing...")
         if self.scenario_used == Scenario.USE_TRUST_MECHANISM:
+            print("[Remove Stone] Updating Beliefs")
             self.increment_values("remove_stone", -0.1, 0, self.bot)
+        print("[Remove Stone] Deleting Session")
         self.delete_self()
 
     def remove_alone(self):
-        print("Remove Alone heard")
+        print("[Remove Stone] Removing Stone Alone")
         if self.scenario_used == Scenario.USE_TRUST_MECHANISM:
+            print("[Remove Stone] Updating Beliefs")
             self.increment_values("remove_stone", 0.1, 0, self.bot)
+        print("[Remove Stone] Deleting Session")
         self.delete_self()
 
     def remove_together(self, ttl=400):
-        print("Remove Together heard")
+        if self.currPhase == self.StoneObstaclePhase.WAITING_HUMAN:
+            return self.wait()
+
+        print("[Remove Stone] Remove Together heard")
+
         if self.scenario_used == Scenario.USE_TRUST_MECHANISM:
+            print("[Remove Stone] Updating Beliefs")
             self.increment_values("remove_stone", 0.15, 0, self.bot)
         # Wait for the human
         self.currPhase = self.StoneObstaclePhase.WAITING_HUMAN
@@ -89,7 +99,10 @@ class StoneObstacleSession(PromptSession):
     @staticmethod
     def help_remove_together(bot, info, ttl=400):
         if not isinstance(bot._current_prompt, StoneObstacleSession):
-            print("Attaching a new StoneObstacleSession")
+            print("[Remove Stone] Attaching a new StoneObstacleSession. Prev Prompt:", bot._current_prompt)
+            bot._send_message(
+                'Please come to ' + str(bot._door['room_name']) + ' to remove stones together.',
+                'RescueBot')
             # Attach a new session to the bot
             curr_session = StoneObstacleSession(bot, info, ttl)
             curr_session.currPhase = StoneObstacleSession.StoneObstaclePhase.WAITING_HUMAN
@@ -97,16 +110,19 @@ class StoneObstacleSession(PromptSession):
         return bot._current_prompt.wait()
 
     def complete_remove_together(self):
-        print("Completed removal!")
+        print("[Remove Stone] Completed removal!")
         if self.scenario_used == Scenario.USE_TRUST_MECHANISM:
+            print("[Remove Stone] Updating Beliefs")
             self.increment_values("remove_stone", 0.1, 0.2, self.bot)
+        print("[Remove Stone] Deleting Session")
         self.delete_self()
 
     def on_timeout(self):
         # Figure out what to do depending on the current phase
         if self.currPhase == self.StoneObstaclePhase.WAITING_RESPONSE:
-            print("Timed out waiting for response!")
+            print("[Remove Stone] Timed out waiting for response!")
             if self.scenario_used == Scenario.USE_TRUST_MECHANISM:
+                print("[Remove Stone] Updating Beliefs")
                 self.increment_values("remove_stone", -0.15, -0.15, self.bot)
 
             self.bot._answered = True
@@ -117,12 +133,14 @@ class StoneObstacleSession(PromptSession):
             self.bot._phase = Phase.ENTER_ROOM
             self.bot._remove = False
 
+            print("[Remove Stone] Deleting Session")
             self.delete_self()
             return RemoveObject.__name__, {'object_id': self.info['obj_id']}
 
         elif self.currPhase == self.StoneObstaclePhase.WAITING_HUMAN:
-            print("Timed out waiting for human!")
+            print("[Remove Stone] Timed out waiting for human!")
             if self.scenario_used == Scenario.USE_TRUST_MECHANISM:
+                print("[Remove Stone] Updating Beliefs")
                 self.increment_values("remove_stone", -0.1, 0, self.bot)
 
             self.bot._answered = True
@@ -133,6 +151,7 @@ class StoneObstacleSession(PromptSession):
             self.bot._phase = Phase.ENTER_ROOM
             self.bot._remove = False
 
+            print("[Remove Stone] Deleting Session")
             self.delete_self()
             return RemoveObject.__name__, {'object_id': self.info['obj_id']}
 
@@ -146,7 +165,8 @@ class StoneObstacleSession(PromptSession):
     def increment_values(task, willingness, competence, bot, is_action=True):
         if is_action:
             StoneObstacleSession.count += 1
-        print("Confidence:", StoneObstacleSession.get_confidence())
+            bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "count", StoneObstacleSession.count)
+
         bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "willingness",
                          StoneObstacleSession.get_confidence() * willingness)
         bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "competence",

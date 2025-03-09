@@ -104,4 +104,25 @@ def output_logger(fld):
     with open(trust_file_path, mode='w', newline='') as csv_file:
         csv_writer = csv.writer(csv_file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         csv_writer.writerow(trustfile_header)  # Write header
-        csv_writer.writerows(updated_trust + [[t['name'], t['task'], t['competence'], t['willingness']] for t in trustfile_contents])  # Append new data
+        csv_writer.writerows(updated_trust + [[t['name'], t['task'], t['competence'], t['willingness'], t['count']] for t in trustfile_contents])  # Append new data
+        
+    # A file with name of the human + allTrustBeliefs.csv
+    human_trust_file_path = fld + '/beliefs/' + trustfile_contents[0]['name'] + '_allTrustBeliefs.csv'
+    # If the file does not exist, create one with the header, using self._tasks from the agent, for each task, should be 2 columns, one for competence and one for willingness
+    if not pathlib.Path(human_trust_file_path).exists():
+        with open(human_trust_file_path, mode='w', newline='') as csv_file:
+            csv_writer = csv.writer(csv_file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            row = []
+            for task in trustfile_contents:
+                row.append(task['task'] + '_competence')
+                row.append(task['task'] + '_willingness')
+            csv_writer.writerow(row)
+    # the header is the names of the tasks, which are already in the file
+    # we just need to append the new values
+    with open(human_trust_file_path, mode='a', newline='') as csv_file:
+        csv_writer = csv.writer(csv_file, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        row = []
+        for task in trustfile_contents:
+            row.append(task['competence'])
+            row.append(task['willingness'])
+        csv_writer.writerow(row)

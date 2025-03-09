@@ -40,11 +40,8 @@ class PromptSession:
         self.bot._current_prompt = None
 
     @staticmethod
-    def increment_values(task, willingness, competence, bot):
-        # Update trust beliefs for a particular task by defined increments
-        if PromptSession.scenario_used == Scenario.USE_TRUST_MECHANISM:
-            bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "willingness", willingness)
-            bot._trustBelief(bot._team_members, bot._trustBeliefs, bot._folder, task, "competence", competence)
+    @abstractmethod
+    def increment_values(task, willingness, competence, bot): pass
         
         
     def calculate_increment_with_confidence(self, number_of_actions, base_increment, confidence_constant=50):

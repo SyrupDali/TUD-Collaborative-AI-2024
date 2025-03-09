@@ -1293,8 +1293,6 @@ def _possible_drop(grid_world, agent_id, obj_id, drop_range):
     if len(loc_obj_ids) == 1:
         return DropObjectResult(DropObjectResult.RESULT_SUCCESS, True)
 
-    # TODO: incorporate is_possible check from DropAction.mutate is_possible here
-
     return DropObjectResult(DropObjectResult.RESULT_SUCCESS, True)
 
 

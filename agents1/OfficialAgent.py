@@ -287,14 +287,6 @@ class BaselineAgent(ArtificialBrain):
 
                 # Check which victims can be rescued next because human or agent already found them
                 for vic in remaining_vics:
-                    # print(remaining_vics)
-
-                    ######
-                    # if 'critical' in vic:
-                    #     print("CRITICAL: " + vic)
-                    # if 'mild' in vic:
-                    #     print("MILD: " + vic)
-
                     # Define a previously found victim as target victim because all areas have been searched
                     if vic in self._found_victims and vic in self._todo and len(self._searched_rooms) == 0:
                         self._goal_vic = vic
@@ -365,7 +357,6 @@ class BaselineAgent(ArtificialBrain):
             if Phase.PICK_UNSEARCHED_ROOM == self._phase:
                 agent_location = state[self.agent_id]['location']
                 # Identify which areas are not explored yet
-                #TODO: Union of (searched_rooms: searched_rooms_by_agent ++ searched_rooms_claimed_by_human(with probability), inferred_searched_rooms_from_collect, inferred_searched_rooms_from_found)
                 unsearched_rooms = [room['room_name'] for room in state.values()
                                    if 'class_inheritance' in room
                                    and 'Door' in room['class_inheritance']
@@ -1481,7 +1472,6 @@ class BaselineAgent(ArtificialBrain):
         trustBeliefs = {}
         
         # Set a default starting trust value
-        # TODO: Discuss with team members what the default trust value should be,
         search_default = 0.0
         rescue_yellow_default = 0.25
         rescue_red_default = 0.25

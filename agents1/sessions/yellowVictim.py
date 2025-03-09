@@ -132,13 +132,7 @@ class YellowVictimSession(PromptSession):
     
     def human_rescue_together(self, use_confidence = False):
         pass
-        
 
-    # def complete_rescue_together(self, use_confidence = False):
-    #     print("Completed rescue!")
-            
-    #     self.increment_values("rescue_yellow", 0.1, 0.2, self.bot)
-    #     self.delete_self()
             
     
     # Determine which decision the agent should make based on trust values

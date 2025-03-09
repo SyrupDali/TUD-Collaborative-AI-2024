@@ -156,18 +156,6 @@ class BaselineAgent(ArtificialBrain):
                     
                     self._received_messages.append(mssg.content)
 
-        ######
-        # print(self._received_messages)
-
-        # print("Found Victims List:")
-        # print(self._found_victims)
-        # print("TODO Victims List:")
-        # print(self._todo)
-
-        # print(self._remove)
-
-        # print(self._phase)
-
         # Process messages from team members
         self._process_messages(state, self._team_members, self._condition)
 
@@ -251,10 +239,6 @@ class BaselineAgent(ArtificialBrain):
 
         # If carrying a victim together, let agent be idle (because joint actions are essentially carried out by the human)
         if self._carrying_together == True:
-            # Check if this can be used for red victims
-            # if 'mild' in info['is_carrying'][0]['obj_id']:
-            #     print("Carrying victim 3")
-            #
             return None, {}
 
         # Send the hidden score message for displaying and logging the score during the task, DO NOT REMOVE THIS
@@ -544,8 +528,6 @@ class BaselineAgent(ArtificialBrain):
                 # Identify which obstacle is blocking the entrance
                 for info in state.values():
                     if 'class_inheritance' in info and 'ObstacleObject' in info['class_inheritance'] and 'rock' in info['obj_id']:
-                        # if info['obj_id'] in self._skipped_obstacles:
-                        #     continue
 
                         objects.append(info)
                         # Competence Update: Decrease trust in human if bot found obstacles at the entrance of the claimed searched area
@@ -626,10 +608,6 @@ class BaselineAgent(ArtificialBrain):
                     if 'class_inheritance' in info and 'ObstacleObject' in info['class_inheritance'] and 'tree' in info[
                         'obj_id']:
                         objects.append(info)
-
-                        # print("reached")
-
-                        # print(f"Debug: _answered={self._answered}, _remove={self._remove}, _waiting={self._waiting}")
 
                         # Competence Update: Decrease trust in human if bot found obstacles at the entrance of the claimed searched area
                         if (self._re_searching or self._door['room_name'] in self._searched_rooms_claimed_by_human) and self._door['room_name'] not in self._not_penalizable:
@@ -780,8 +758,6 @@ class BaselineAgent(ArtificialBrain):
                             return None, {}
                         
                     if 'class_inheritance' in info and 'ObstacleObject' in info['class_inheritance'] and 'rock' in info['obj_id']:
-                        # if info['obj_id'] in self._skipped_obstacles:
-                        #     continue
                         objects.append(info)
                         # verify if the room is blocked by an obstacle
                         if self._remove and not self._waiting:
@@ -1035,7 +1011,6 @@ class BaselineAgent(ArtificialBrain):
                     return action, {}
 
 
-                # CHECK THIS AGAIN FOR LYING!!!!!
                 # Communicate that the agent did not find the target victim in the area while the human previously communicated the victim was located here
                 if self._goal_vic in self._found_victims and self._goal_vic not in self._room_vics and \
                         self._found_victim_logs[self._goal_vic]['room'] == self._door['room_name']:
@@ -1595,12 +1570,7 @@ class BaselineAgent(ArtificialBrain):
             for name, tasks in trustBeliefs.items():
                 for task, values in tasks.items():
                     csv_writer.writerow([name, task, values['competence'], values['willingness'], values['count']])
-            # csv_writer.writerow([
-            #     self._human_name,
-            #     task,
-            #     trustBeliefs[self._human_name][task]['competence'],
-            #     trustBeliefs[self._human_name][task]['willingness']
-            # ])
+
 
         return trustBeliefs
    

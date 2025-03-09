@@ -68,6 +68,8 @@ class RockObstacleSession(PromptSession):
                 "We agreed to remove the big rock together, but nobody arrived. I will skip it and continue.",
                 "RescueBot"
             )
+
+        self.bot._skipped_obstacles.append(self.info['obj_id'])
         
         return self._finish_session()
 
